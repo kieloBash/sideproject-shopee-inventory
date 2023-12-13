@@ -19,7 +19,8 @@ const useFetchInvoices = ({
     queryFn: async () => {
       let supabaseQuery = supabase
         .from("invoices_transaction")
-        .select("*, miner: miner_id(name)");
+        .select("*, miner: miner_id(name)")
+        .order("ordering_date", { ascending: false });
 
       // Add filter based on StatusMinerFilterType
       if (filter !== "All") {
