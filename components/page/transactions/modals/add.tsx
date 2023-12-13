@@ -38,7 +38,7 @@ const formSchema = z.object({
 
 export function AddMinerModal() {
   const [cart, setCart] = useState<number[]>([]);
-  const [item, setItem] = useState<number>(0);
+  const [item, setItem] = useState<number | undefined>();
   const [miner_name, setMiner_name] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +58,7 @@ export function AddMinerModal() {
   const searchedMiners = useFetchMinersSearch({ searchName: debouncedSearch });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (cart.length === 0 && miner_name === "") return null;
+    if (cart.length === 0 || miner_name === "") return null;
 
     const { free } = values;
     const created_at = new Date(
@@ -67,12 +67,6 @@ export function AddMinerModal() {
       date.getDate() + 1
     );
     setIsLoading(true);
-
-    // const res = await supabase
-    //   .from("invoice")
-    //   .insert({ miner_name, free, cart, created_at })
-    //   .select("*")
-    //   .single();
 
     let miner;
 
@@ -188,6 +182,7 @@ export function AddMinerModal() {
                                     {searchedMiners?.data?.map((miner) => (
                                       <>
                                         <button
+                                          type="button"
                                           onClick={() =>
                                             setMiner_name(miner.name)
                                           }
@@ -210,49 +205,6 @@ export function AddMinerModal() {
                   </div>
                 )}
               </div>
-              {/* <FormField
-                control={form.control}
-                miner_name="miner_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="grid w-full max-w-sm items-center gap-1.5 relative">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Name of Miner"
-                          {...field}
-                        />
-                      </FormControl>
-                      {searchedMiners?.data !== undefined && (
-                        <div className="absolute top-full left-0 bg-white shadow -mt-1 z-[10] w-full">
-                          {searchedMiners?.isLoading ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            </>
-                          ) : (
-                            <>
-                              <ScrollArea className="h-32 w-full rounded-md border">
-                                <div className="p-4">
-                                  {searchedMiners?.data?.map((miner) => (
-                                    <>
-                                      <div key={miner.id} className="text-sm">
-                                        {miner.miner_name}
-                                      </div>
-                                      <Separator className="my-2" />
-                                    </>
-                                  ))}
-                                </div>
-                              </ScrollArea>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name="free"
@@ -289,12 +241,12 @@ export function AddMinerModal() {
               <div className="grid grid-cols-3 gap-2 mt-4">
                 <div className="col-span-1 flex flex-col gap-1.5">
                   <div className="flex flex-col p-2 border rounded-md gap-1">
-                    <Label htmlFor="cart">Price</Label>
+                    <Label htmlFor="cart">Amount</Label>
                     <input
                       type="number"
                       id="price"
-                      placeholder="Price"
-                      className="outline-none border-b pl-2 py-1"
+                      placeholder="item"
+                      className="outline-none border-b pl-2 py-1 text-sm"
                       value={item}
                       onChange={(e) => setItem(Number(e.target.value))}
                     />
@@ -303,6 +255,9 @@ export function AddMinerModal() {
                     <Button
                       type="button"
                       onClick={() => {
+                        if (item === undefined) return null;
+                        if (item <= 0) return null;
+
                         setCart((prev) => [item, ...prev]);
                         setItem(0);
                       }}
@@ -347,7 +302,7 @@ export function AddMinerModal() {
               </div>
 
               <Button
-                disabled={isLoading}
+                disabled={isLoading || cart.length === 0 || miner_name === ""}
                 type="submit"
                 className="w-full mt-4"
               >
