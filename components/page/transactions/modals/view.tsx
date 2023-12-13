@@ -14,7 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-import { Loader2, Minus, Plus, Trash } from "lucide-react";
+import { Check, Loader2, Minus, Pen, Plus, Trash, X } from "lucide-react";
 import supabase from "@/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
@@ -28,6 +28,10 @@ export function ViewMinersModal() {
 
   const [free_items, setFree] = useState(selectedInvoice?.free_items || 0);
   const [cart, setCart] = useState<number[]>(selectedInvoice?.cart || []);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [itemIndex, setItemIndex] = useState<number | undefined>();
+  const [toEditedItem, setToEditedItem] = useState<number | undefined>();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -72,6 +76,21 @@ export function ViewMinersModal() {
     setCart(updatedCart);
   }
 
+  function handleEditItem() {
+    if (!selectedInvoice) return null;
+    if (cart.length <= 1) return null;
+    if (itemIndex === undefined) return null;
+    if (toEditedItem === undefined || toEditedItem <= 0) return null;
+
+    let updatedCart = [...cart];
+    updatedCart[itemIndex] = toEditedItem || 0;
+
+    setCart(updatedCart);
+    setIsEditing(false);
+    setItemIndex(undefined);
+    setToEditedItem(undefined);
+  }
+
   const noChanges = useMemo(() => {
     // Check if arrays have the same length
     if (cart.length !== selectedInvoice?.cart.length) {
@@ -110,7 +129,13 @@ export function ViewMinersModal() {
             <Input
               id="free_items"
               value={free_items}
-              onChange={(e) => setFree(Number(e.target.value))}
+              onChange={(e) => {
+                if (
+                  Number(e.target.value) >= 0 &&
+                  Number(e.target.value) < 100000
+                )
+                  setFree(Number(e.target.value));
+              }}
               type="number"
               className="col-span-1"
             />
@@ -142,17 +167,68 @@ export function ViewMinersModal() {
                     key={tag}
                     className="text-sm flex justify-between items-center"
                   >
-                    <span>{tag}</span>
-                    <div className="flex gap-2 justify-center items-center">
-                      <Button
-                        type="button"
-                        variant={"ghostBtn"}
-                        className="w-4 h-4 p-0"
-                        onClick={() => handleDeleteItem(index)}
-                      >
-                        <Trash />
-                      </Button>
-                    </div>
+                    {isEditing && itemIndex === index ? (
+                      <>
+                        <input
+                          type="number"
+                          className="w-16 border p-1"
+                          value={toEditedItem}
+                          onChange={(e) => {
+                            setToEditedItem(Number(e.target.value));
+                          }}
+                        />
+                        <div className="flex gap-2 justify-center items-center">
+                          <Button
+                            type="button"
+                            variant={"ghostBtn"}
+                            className="w-4 h-4 p-0"
+                            onClick={() => {
+                              setItemIndex(undefined);
+                              setIsEditing(false);
+                            }}
+                          >
+                            <X />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={"ghostBtn"}
+                            className="w-4 h-4 p-0"
+                            onClick={() => {
+                              handleEditItem();
+                            }}
+                          >
+                            <Check />
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="p-1">{tag}</span>
+                        <div className="flex gap-2 justify-center items-center">
+                          <Button
+                            type="button"
+                            variant={"ghostBtn"}
+                            className="w-4 h-4 p-0"
+                            onClick={() => {
+                              setItemIndex(index);
+                              setIsEditing(true);
+                              if (cart.length > 0 && index >= 0)
+                                setToEditedItem(cart[index]);
+                            }}
+                          >
+                            <Pen />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={"ghostBtn"}
+                            className="w-4 h-4 p-0"
+                            onClick={() => handleDeleteItem(index)}
+                          >
+                            <Trash />
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <Separator className="my-2" />
                 </>

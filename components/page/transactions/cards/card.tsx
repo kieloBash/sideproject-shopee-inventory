@@ -133,7 +133,7 @@ export function MinerCard({
             </div>
             <div className="flex items-center w-60">
               <BadgeCheck className="mr-1 h-3 w-3" />
-              {invoice.free_items} free
+              {invoice.free_items.toLocaleString()} free
             </div>
             <div className="flex items-center w-60">
               <DollarSign className="mr-1 h-3 w-3" />
@@ -152,7 +152,7 @@ export function MinerCard({
               } px-2 shadow-none`}
             >
               <Check className={`mr-2 h-4 w-4`} />
-              Mined
+              Check out
             </Button>
             <Separator orientation="vertical" className="h-[20px]" />
             <DropdownMenu>
