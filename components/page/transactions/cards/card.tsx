@@ -46,8 +46,12 @@ export function MinerCard({
   invoice: InvoiceType;
   user_id: string;
 }) {
-  const { setSelectedInvoice, setToggleView, setToggleDelete, setToggleEdit } =
-    useInvoiceContext();
+  const {
+    setSelectedInvoice,
+    setToggleView,
+    setToggleDelete,
+    setToggleCheckout,
+  } = useInvoiceContext();
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -145,7 +149,11 @@ export function MinerCard({
           <div className="flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
             <Button
               disabled={isLoading}
-              onClick={updateStatus}
+              onClick={() => {
+                setSelectedInvoice(invoice);
+                setToggleCheckout(true);
+              }}
+              // onClick={updateStatus}
               variant="secondary"
               className={`${
                 invoice.status === "Confirmed" && "text-main-default"

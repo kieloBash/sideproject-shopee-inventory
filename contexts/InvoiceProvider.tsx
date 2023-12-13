@@ -10,8 +10,8 @@ export type InvoiceContextType = {
   // setToggleAdd: (temp: boolean) => void;
   toggleView: boolean;
   setToggleView: (temp: boolean) => void;
-  toggleEdit: boolean;
-  setToggleEdit: (temp: boolean) => void;
+  toggleCheckout: boolean;
+  setToggleCheckout: (temp: boolean) => void;
   toggleDelete: boolean;
   setToggleDelete: (temp: boolean) => void;
 };
@@ -24,8 +24,8 @@ export const InvoiceContext = React.createContext<InvoiceContextType>({
   // setToggleAdd: (temp: boolean) => {},
   toggleView: false,
   setToggleView: (temp: boolean) => {},
-  toggleEdit: false,
-  setToggleEdit: (temp: boolean) => {},
+  toggleCheckout: false,
+  setToggleCheckout: (temp: boolean) => {},
   toggleDelete: false,
   setToggleDelete: (temp: boolean) => {},
 });
@@ -39,7 +39,7 @@ const InvoiceProvider = ({ children }: { children: React.ReactNode }) => {
 
   // const [toggleAdd, setToggleAdd] = React.useState<boolean>(false);
   const [toggleView, setToggleView] = React.useState<boolean>(false);
-  const [toggleEdit, setToggleEdit] = React.useState<boolean>(false);
+  const [toggleCheckout, setToggleCheckout] = React.useState<boolean>(false);
   const [toggleDelete, setToggleDelete] = React.useState<boolean>(false);
 
   return (
@@ -49,11 +49,11 @@ const InvoiceProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedInvoice,
         // toggleAdd,
         toggleView,
-        toggleEdit,
+        toggleCheckout,
         toggleDelete,
         // setToggleAdd,
         setToggleView,
-        setToggleEdit,
+        setToggleCheckout,
         setToggleDelete,
       }}
     >

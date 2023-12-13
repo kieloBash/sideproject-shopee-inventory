@@ -118,7 +118,7 @@ export function ViewMinersModal() {
     >
       <DialogContent className="max-w-[320px] sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>InvoiceType Cart</DialogTitle>
+          <DialogTitle>Cart</DialogTitle>
           <DialogDescription>Here is the cart for the miner</DialogDescription>
         </DialogHeader>
         <div className="w-full flex justify-center items-center flex-col gap-2">

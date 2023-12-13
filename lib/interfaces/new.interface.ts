@@ -1,6 +1,7 @@
 export interface InvoiceType {
   id: string;
   miner_id: string;
+  miner_name: string;
   created_at: Date;
   cart: number[];
   status: "Pending" | "Confirmed";

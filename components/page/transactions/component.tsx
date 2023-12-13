@@ -43,6 +43,7 @@ import { useInvoiceContext } from "@/contexts/InvoiceProvider";
 import { useSession } from "next-auth/react";
 import { StatusMinerFilterType } from "@/lib/interfaces/new.interface";
 import { usePathname, useRouter } from "next/navigation";
+import { CheckOutMinerModal } from "./modals/checkout";
 
 const TransactionComponent = ({
   dateString,
@@ -75,6 +76,7 @@ const TransactionComponent = ({
     <>
       {selectedInvoice && <ViewMinersModal />}
       {selectedInvoice && <DeleteMinerModal />}
+      {selectedInvoice && <CheckOutMinerModal />}
       <AddMinerModal />
       <ListMinerModal date={date} />
 
