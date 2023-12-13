@@ -36,11 +36,17 @@ const formSchema = z.object({
   free: z.number().gte(0),
 });
 
-export function AddMinerModal() {
+export function AddMinerModal({
+  dateString,
+}: {
+  dateString: string | undefined;
+}) {
   const [cart, setCart] = useState<number[]>([]);
   const [item, setItem] = useState<number | undefined>();
   const [miner_name, setMiner_name] = useState<string>("");
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date | undefined>(
+    dateString ? new Date(dateString) : new Date()
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -57,8 +63,23 @@ export function AddMinerModal() {
   const debouncedSearch = useDebounce(miner_name, 500);
   const searchedMiners = useFetchMinersSearch({ searchName: debouncedSearch });
 
+  function finishedAdd() {
+    toast({
+      title: "Successfully Inserted",
+      description: `Mined: ${cart.length}`,
+      variant: "success",
+    });
+    form.reset();
+    setCart([]);
+    setItem(0);
+    setOpen(false);
+    setIsLoading(false);
+    setDate(new Date(dateString || ""))
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (cart.length === 0 || miner_name === "") return null;
+    if (cart.length === 0 || miner_name === "" || date === undefined)
+      return null;
 
     const { free } = values;
     const created_at = new Date(
@@ -92,16 +113,25 @@ export function AddMinerModal() {
       miner = newMiner;
     }
 
-    const invoice = await supabase
+    const existingInvoice = await supabase
       .from("invoices_transaction")
-      .insert({ miner_id: miner.data.id, cart, free_items: free, created_at })
       .select("*")
+      // equal name of the miner from the referenced miner_id and equal created_at
+      .eq("miner_id", miner.data.id)
+      .eq("created_at", created_at.toISOString())
+      .eq("status", "Pending")
       .single();
 
-    if (invoice.error) {
-      console.log(invoice.error);
-      setIsLoading(false);
-    } else {
+    if (existingInvoice.data) {
+      const updatedExistingInvoice = await supabase
+        .from("invoices_transaction")
+        .update({
+          ["cart"]: [...existingInvoice.data.cart, ...cart],
+          ["free_items"]: existingInvoice.data.free_items + free,
+        })
+        .eq("id", existingInvoice.data.id);
+
+      if (updatedExistingInvoice.error) return null;
       queryClient.invalidateQueries({
         queryKey: ["invoices-dates"],
       });
@@ -114,16 +144,31 @@ export function AddMinerModal() {
       queryClient.invalidateQueries({
         queryKey: [`miners`],
       });
-      toast({
-        title: "Successfully Inserted",
-        description: `Mined: ${cart.length}`,
-        variant: "success",
-      });
-      form.reset();
-      setCart([]);
-      setItem(0);
-      setOpen(false);
-      setIsLoading(false);
+      finishedAdd();
+    } else {
+      const invoice = await supabase
+        .from("invoices_transaction")
+        .insert({ miner_id: miner.data.id, cart, free_items: free, created_at })
+        .select("*")
+        .single();
+      if (invoice.error) {
+        console.log(invoice.error);
+        setIsLoading(false);
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["invoices-dates"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [`invoices`],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [`miners-search`],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [`miners`],
+        });
+        finishedAdd();
+      }
     }
   }
   function handleDeleteItem(index: number) {
@@ -234,7 +279,7 @@ export function AddMinerModal() {
                 <input
                   className="p-2 border rounded-md text-sm outline-none"
                   type="date"
-                  value={date.toISOString().split("T")[0]}
+                  value={date?.toISOString().split("T")[0]}
                   onChange={(e) => setDate(new Date(e.target.value))}
                 />
               </div>

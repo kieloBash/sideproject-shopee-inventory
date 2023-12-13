@@ -63,7 +63,7 @@ const TransactionComponent = ({
       {selectedInvoice && <ViewMinersModal />}
       {selectedInvoice && <DeleteMinerModal />}
       {/* {selectedInvoice && <EditMinerModal />} */}
-      <AddMinerModal />
+      <AddMinerModal dateString={dateString}/>
       <ListMinerModal date={date} />
       <div className="w-full flex gap-2 justify-start items-center">
         <Popover>
