@@ -1,7 +1,6 @@
 "use client";
 
-import { StatusMinerFilterType } from "@/components/page/transactions/component";
-import { Miner } from "@/lib/interfaces";
+import { MinerType, StatusMinerFilterType } from "@/lib/interfaces/new.interface";
 import supabase from "@/utils/supabase";
 import { useQuery } from "@tanstack/react-query";
 
@@ -51,7 +50,7 @@ const useFetchMiners = ({
 
       const { data: miners, error } = await supabaseQuery;
 
-      return miners as Miner[];
+      return miners as MinerType[];
     },
     enabled: date !== undefined,
   });

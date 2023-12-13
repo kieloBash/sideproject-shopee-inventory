@@ -1,7 +1,9 @@
 "use client";
 
-import { StatusMinerFilterType } from "@/components/page/transactions/component";
-import { InvoiceType } from "@/lib/interfaces/new.interface";
+import {
+  InvoiceType,
+  StatusMinerFilterType,
+} from "@/lib/interfaces/new.interface";
 import supabase from "@/utils/supabase";
 import { useQuery } from "@tanstack/react-query";
 
@@ -15,7 +17,9 @@ const useFetchInvoices = ({
   const { data, isLoading } = useQuery({
     queryKey: [`invoices`, filter, date],
     queryFn: async () => {
-      let supabaseQuery = supabase.from("invoices_transaction").select("*, miner: miner_id(name)");
+      let supabaseQuery = supabase
+        .from("invoices_transaction")
+        .select("*, miner: miner_id(name)");
 
       // Add filter based on StatusMinerFilterType
       if (filter !== "All") {
