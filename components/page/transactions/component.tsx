@@ -16,7 +16,14 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Menu, Plus } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Check,
+  Menu,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -39,20 +46,26 @@ import { usePathname, useRouter } from "next/navigation";
 
 const TransactionComponent = ({
   dateString,
+  searchMinerString,
 }: {
   dateString: string | undefined;
+  searchMinerString: string;
 }) => {
   const [filter, setFilter] = useState<StatusMinerFilterType>("All");
   const [date, setDate] = useState<Date | undefined>(
     dateString ? new Date(dateString) : new Date()
   );
+  const [stringVal, setStringVal] = useState<string>(searchMinerString || "");
   const { data: session } = useSession();
 
   const { selectedInvoice } = useInvoiceContext();
 
-  const miners = useFetchMiners({ filter, date });
   const uniqueDates = useUniqueDates();
-  const invoices = useFetchInvoices({ filter, date });
+  const invoices = useFetchInvoices({
+    filter,
+    date,
+    search: searchMinerString,
+  });
 
   // PATH
   const pathname = usePathname();
@@ -62,9 +75,38 @@ const TransactionComponent = ({
     <>
       {selectedInvoice && <ViewMinersModal />}
       {selectedInvoice && <DeleteMinerModal />}
-      {/* {selectedInvoice && <EditMinerModal />} */}
-      <AddMinerModal dateString={dateString}/>
+      <AddMinerModal />
       <ListMinerModal date={date} />
+
+      <form className="flex items-center px-3 border rounded-md mb-2">
+        <Search className="w-4 h-4 mr-2 opacity-50 shrink-0" />
+        <input
+          className="flex w-full py-3 text-sm bg-transparent rounded-md outline-none h-11 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          placeholder="Search a user..."
+          value={stringVal}
+          onChange={(e) => setStringVal(e.target.value)}
+          name="searchMiner"
+        />
+        {stringVal !== "" && (
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              onClick={() => {
+                setStringVal("");
+                router.replace("/transactions");
+              }}
+              size={"icon"}
+              variant={"ghostBtn"}
+              className="w-5 h-5"
+            >
+              <X />
+            </Button>
+            <Button type="submit" variant={"ghostBtn"} className="h-5">
+              Search
+            </Button>
+          </div>
+        )}
+      </form>
       <div className="w-full flex gap-2 justify-start items-center">
         <Popover>
           <PopoverTrigger asChild>
@@ -141,7 +183,7 @@ const TransactionComponent = ({
         <>
           {invoices.data && invoices.data.length > 0 ? (
             <>
-              <ScrollArea className="px-2 w-full h-[calc(100vh-9.6rem)] mt-2">
+              <ScrollArea className="px-2 w-full h-[calc(100vh-14rem)] mt-2">
                 <div className="w-full py-2 h-full flex flex-col gap-1.5">
                   {invoices?.data?.map((invoice) => {
                     return (

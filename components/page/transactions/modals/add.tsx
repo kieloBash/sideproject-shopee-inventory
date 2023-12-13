@@ -36,17 +36,11 @@ const formSchema = z.object({
   free: z.number().gte(0),
 });
 
-export function AddMinerModal({
-  dateString,
-}: {
-  dateString: string | undefined;
-}) {
+export function AddMinerModal() {
   const [cart, setCart] = useState<number[]>([]);
   const [item, setItem] = useState<number | undefined>();
   const [miner_name, setMiner_name] = useState<string>("");
-  const [date, setDate] = useState<Date | undefined>(
-    dateString ? new Date(dateString) : new Date()
-  );
+  const [date, setDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -74,7 +68,6 @@ export function AddMinerModal({
     setItem(0);
     setOpen(false);
     setIsLoading(false);
-    setDate(new Date(dateString || ""))
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -148,7 +141,13 @@ export function AddMinerModal({
     } else {
       const invoice = await supabase
         .from("invoices_transaction")
-        .insert({ miner_id: miner.data.id, cart, free_items: free, created_at })
+        .insert({
+          miner_id: miner.data.id,
+          cart,
+          free_items: free,
+          created_at,
+          miner_name: miner_name,
+        })
         .select("*")
         .single();
       if (invoice.error) {
@@ -279,7 +278,7 @@ export function AddMinerModal({
                 <input
                   className="p-2 border rounded-md text-sm outline-none"
                   type="date"
-                  value={date?.toISOString().split("T")[0]}
+                  value={date.toISOString().split("T")[0]}
                   onChange={(e) => setDate(new Date(e.target.value))}
                 />
               </div>

@@ -2,6 +2,7 @@
 
 import {
   InvoiceType,
+  MinerType,
   StatusMinerFilterType,
 } from "@/lib/interfaces/new.interface";
 import supabase from "@/utils/supabase";
@@ -9,14 +10,28 @@ import { useQuery } from "@tanstack/react-query";
 
 const useFetchInvoices = ({
   filter,
+  search,
   date = new Date(),
 }: {
   filter: StatusMinerFilterType;
+  search: string;
   date: Date | undefined;
 }) => {
   const { data, isLoading } = useQuery({
-    queryKey: [`invoices`, filter, date],
+    queryKey: [`invoices`, filter, date, search],
     queryFn: async () => {
+      // let miners = [];
+      // if (search !== "") {
+      //   const existingMiner = supabase
+      //     .from("miner")
+      //     .select("*")
+      //     .filter("name", "ilike", `%${search}%`);
+
+      //   const { data: miners, error } = await existingMiner;
+
+      //   miners as MinerType[];
+      // }
+
       let supabaseQuery = supabase
         .from("invoices_transaction")
         .select("*, miner: miner_id(name)")
@@ -25,6 +40,11 @@ const useFetchInvoices = ({
       // Add filter based on StatusMinerFilterType
       if (filter !== "All") {
         supabaseQuery = supabaseQuery.filter("status", "eq", filter);
+      }
+
+      // Add filter based on StatusMinerFilterType
+      if (search !== "") {
+        supabaseQuery = supabaseQuery.filter("miner_name", "ilike", `%${search}%`);
       }
       // Filter for timestamps on the specified date (UTC)
       const startDate = new Date(
@@ -55,6 +75,8 @@ const useFetchInvoices = ({
         .filter("created_at", "lte", endDate.toISOString());
 
       const { data, error } = await supabaseQuery;
+
+      console.log(search, data);
 
       return data as InvoiceType[];
     },

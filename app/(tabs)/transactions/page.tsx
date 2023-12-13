@@ -7,6 +7,8 @@ import React from "react";
 
 const TransactionsPage = ({ searchParams }: PageProps) => {
   const dateString = (searchParams?.date || undefined) as string | undefined;
+  const searchMiner = (searchParams?.searchMiner || undefined) as string | undefined;
+  console.log(searchParams);
 
   return (
     <>
@@ -17,7 +19,7 @@ const TransactionsPage = ({ searchParams }: PageProps) => {
         </header>
         <article className="flex-1 flex flex-col py-2 relative">
           <InvoiceProvider>
-            <TransactionComponent dateString={dateString}/>
+            <TransactionComponent dateString={dateString} searchMinerString={searchMiner || ""}/>
           </InvoiceProvider>
         </article>
       </section>
