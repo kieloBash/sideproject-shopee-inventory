@@ -8,7 +8,7 @@ import React from "react";
 const TransactionsPage = ({ searchParams }: PageProps) => {
   const dateString = (searchParams?.date || undefined) as string | undefined;
   const searchMiner = (searchParams?.searchMiner || undefined) as string | undefined;
-  console.log(searchParams);
+  console.log(searchParams,searchMiner);
 
   return (
     <>

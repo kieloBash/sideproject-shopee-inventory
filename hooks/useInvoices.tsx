@@ -20,18 +20,6 @@ const useFetchInvoices = ({
   const { data, isLoading } = useQuery({
     queryKey: [`invoices`, filter, date, search],
     queryFn: async () => {
-      // let miners = [];
-      // if (search !== "") {
-      //   const existingMiner = supabase
-      //     .from("miner")
-      //     .select("*")
-      //     .filter("name", "ilike", `%${search}%`);
-
-      //   const { data: miners, error } = await existingMiner;
-
-      //   miners as MinerType[];
-      // }
-
       let supabaseQuery = supabase
         .from("invoices_transaction")
         .select("*, miner: miner_id(name)")
@@ -43,40 +31,43 @@ const useFetchInvoices = ({
       }
 
       // Add filter based on StatusMinerFilterType
-      if (search !== "") {
-        supabaseQuery = supabaseQuery.filter("miner_name", "ilike", `%${search}%`);
-      }
-      // Filter for timestamps on the specified date (UTC)
-      const startDate = new Date(
-        Date.UTC(
-          date.getFullYear(),
-          date.getMonth(),
-          date.getDate(),
-          0,
-          0,
-          0,
-          0
-        )
-      );
-      const endDate = new Date(
-        Date.UTC(
-          date.getFullYear(),
-          date.getMonth(),
-          date.getDate(),
-          23,
-          59,
-          59,
-          999
-        )
-      );
+      if (search !== "" && search !== null) {
+        supabaseQuery = supabaseQuery.filter(
+          "miner_name",
+          "ilike",
+          `%${search}%`
+        );
+      } else {
+        // Filter for timestamps on the specified date (UTC)
+        const startDate = new Date(
+          Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        const endDate = new Date(
+          Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            23,
+            59,
+            59,
+            999
+          )
+        );
 
-      supabaseQuery = supabaseQuery
-        .filter("created_at", "gte", startDate.toISOString())
-        .filter("created_at", "lte", endDate.toISOString());
+        supabaseQuery = supabaseQuery
+          .filter("created_at", "gte", startDate.toISOString())
+          .filter("created_at", "lte", endDate.toISOString());
+      }
 
       const { data, error } = await supabaseQuery;
-
-      console.log(search, data);
 
       return data as InvoiceType[];
     },

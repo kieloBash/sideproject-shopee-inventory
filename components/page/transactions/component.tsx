@@ -42,7 +42,7 @@ import useFetchInvoices from "@/hooks/useInvoices";
 import { useInvoiceContext } from "@/contexts/InvoiceProvider";
 import { useSession } from "next-auth/react";
 import { StatusMinerFilterType } from "@/lib/interfaces/new.interface";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CheckOutMinerModal } from "./modals/checkout";
 
 const TransactionComponent = ({
@@ -70,7 +70,10 @@ const TransactionComponent = ({
 
   // PATH
   const pathname = usePathname();
+  const params = useSearchParams();
   const router = useRouter();
+  const minerParams = params.get("searchMiner");
+  const dateParams = params.get("date");
 
   return (
     <>
@@ -80,7 +83,15 @@ const TransactionComponent = ({
       <AddMinerModal />
       <ListMinerModal date={date} />
 
-      <form className="flex items-center px-3 border rounded-md mb-2">
+      <form
+        className="flex items-center px-3 border rounded-md mb-2"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const newURL = `${pathname}?date=${dateParams}&searchMiner=${stringVal}`; // Construct the new URL with the formatted date as a query parameter
+          console.log(newURL);
+          router.push(newURL, undefined);
+        }}
+      >
         <Search className="w-4 h-4 mr-2 opacity-50 shrink-0" />
         <input
           className="flex w-full py-3 text-sm bg-transparent rounded-md outline-none h-11 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
@@ -132,7 +143,8 @@ const TransactionComponent = ({
                 const formattedDate = dayjs(e).format("YYYY-MM-DD");
 
                 const newDate = encodeURIComponent(formattedDate); // Encoding the date if needed
-                const newURL = `${pathname}?date=${newDate}`; // Construct the new URL with the formatted date as a query parameter
+                const newURL = `${pathname}?date=${newDate}&searchMiner=${minerParams ? minerParams : ""}`; // Construct the new URL with the formatted date as a query parameter
+                console.log(newURL);
                 router.push(newURL, undefined); // Navigate to the new URL
 
                 setDate(e);
