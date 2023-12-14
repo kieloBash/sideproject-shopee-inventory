@@ -61,6 +61,7 @@ export function CheckOutMinerModal() {
     if (!selectedInvoice) return null;
     setIsLoading(true);
     const cart = compareCarts(selectedInvoice?.cart || [], data.cart);
+    let points = 0;
 
     if (selectedInvoice.status === "Pending") {
       if (cart.differentValues.length === 0) {
@@ -72,6 +73,8 @@ export function CheckOutMinerModal() {
           .eq("created_at", new Date(selectedInvoice.created_at).toISOString())
           .eq("status", "Confirmed")
           .single();
+
+        points = points + selectedInvoice.cart.length;
 
         if (existingConfirmedInvoice.data) {
           const updatedExistingInvoice = await supabase
@@ -127,6 +130,7 @@ export function CheckOutMinerModal() {
               ["free_items"]: existingConfirmedInvoice.data.free_items,
             })
             .eq("id", existingConfirmedInvoice.data.id);
+          points += cart.commonValues.length;
         } else {
           const CheckOutInvoice = await supabase
             .from("invoices_transaction")
@@ -141,6 +145,7 @@ export function CheckOutMinerModal() {
             })
             .select("*")
             .single();
+          points += cart.commonValues.length;
         }
       }
     } else {
@@ -159,6 +164,8 @@ export function CheckOutMinerModal() {
           })
           .eq("id", selectedInvoice.id);
       }
+
+      points -= cart.differentValues.length;
 
       const existingPendingInvoice = await supabase
         .from("invoices_transaction")
@@ -193,7 +200,20 @@ export function CheckOutMinerModal() {
           .select("*")
           .single();
       }
+      points -= cart.commonValues.length;
     }
+    const miner = await supabase
+      .from("miner")
+      .select("*")
+      .eq("id", selectedInvoice.miner_id)
+      .single();
+
+    const newMiner = await supabase
+      .from("miner")
+      .update({
+        ["rewardpts"]: points + miner.data.rewardpts,
+      })
+      .eq("id", selectedInvoice.miner_id);
 
     queryClient.invalidateQueries({
       queryKey: ["invoices-dates"],
