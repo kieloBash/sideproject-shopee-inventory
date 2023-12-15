@@ -37,6 +37,8 @@ import supabase from "@/utils/supabase";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { UserType } from "@/lib/interfaces/user.interface";
 
 export function CheckOutMinerModal() {
   const {
@@ -47,6 +49,9 @@ export function CheckOutMinerModal() {
   } = useInvoiceContext();
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+
+  const { data: session } = useSession();
+  const user = session?.user as UserType;
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -91,6 +96,21 @@ export function CheckOutMinerModal() {
             .from("invoices_transaction")
             .delete()
             .eq("id", selectedInvoice.id);
+
+          const income = await supabase
+            .from("income")
+            .insert({
+              user_id: user.id,
+              date: new Date(),
+              source: "Business - Shopee",
+              amount: getTotalOfCart([
+                ...existingConfirmedInvoice.data.cart,
+                ...cart.commonValues,
+              ]),
+              description: `Shopee mined by ${selectedInvoice.miner_name}`,
+            })
+            .select("*")
+            .single();
         } else {
           const res = await supabase
             .from("invoices_transaction")
@@ -99,6 +119,18 @@ export function CheckOutMinerModal() {
               ["confirm_date"]: new Date(),
             })
             .eq("id", selectedInvoice.id);
+
+          const income = await supabase
+            .from("income")
+            .insert({
+              user_id: user.id,
+              date: new Date(),
+              source: "Business - Shopee",
+              amount: getTotalOfCart(selectedInvoice.cart),
+              description: `Shopee mined by ${selectedInvoice.miner_name}`,
+            })
+            .select("*")
+            .single();
         }
       } else if (cart.differentValues.length > 0) {
         const prevInvoice = await supabase
@@ -131,6 +163,21 @@ export function CheckOutMinerModal() {
             })
             .eq("id", existingConfirmedInvoice.data.id);
           points += cart.commonValues.length;
+
+          const income = await supabase
+            .from("income")
+            .insert({
+              user_id: user.id,
+              date: new Date(),
+              source: "Business - Shopee",
+              amount: getTotalOfCart([
+                ...existingConfirmedInvoice.data.cart,
+                ...cart.commonValues,
+              ]),
+              description: `Shopee mined by ${selectedInvoice.miner_name}`,
+            })
+            .select("*")
+            .single();
         } else {
           const CheckOutInvoice = await supabase
             .from("invoices_transaction")
@@ -146,6 +193,18 @@ export function CheckOutMinerModal() {
             .select("*")
             .single();
           points += cart.commonValues.length;
+
+          const income = await supabase
+            .from("income")
+            .insert({
+              user_id: user.id,
+              date: new Date(),
+              source: "Business - Shopee",
+              amount: getTotalOfCart(cart.commonValues),
+              description: `Shopee mined by ${selectedInvoice.miner_name}`,
+            })
+            .select("*")
+            .single();
         }
       }
     } else {
@@ -237,7 +296,11 @@ export function CheckOutMinerModal() {
       variant: `success`,
     });
   }
-
+  function getTotalOfCart(cart: number[]) {
+    const total = cart.reduce((acc, item) => acc + item, 0);
+    const tax = total * 0.2;
+    return total - tax;
+  }
   function compareCarts(selectedValues: number[], checkedIndexes: number[]) {
     const commonValues = selectedValues.filter((value, index) =>
       checkedIndexes.includes(index)
@@ -247,6 +310,13 @@ export function CheckOutMinerModal() {
     );
     return { commonValues, differentValues };
   }
+
+  if (!user)
+    return (
+      <div className="flex-1 w-full h-full flex justify-center items-center">
+        <Loader2 className="w-5 h-5 animate-spin" />
+      </div>
+    );
 
   return (
     <Dialog
