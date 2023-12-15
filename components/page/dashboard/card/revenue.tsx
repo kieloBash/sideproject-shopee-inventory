@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useFetchRevenue from "@/hooks/useRevenue";
 import { Circle } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Revenue = ({ date }: { date: Date | undefined }) => {
   const revenue = useFetchRevenue({ date });
@@ -39,21 +40,29 @@ const Revenue = ({ date }: { date: Date | undefined }) => {
         </svg>
       </CardHeader>
       <CardContent>
-        <div className="text-4xl font-bold">₱ {total.toLocaleString()}</div>
-        <Label>Expenses</Label>
-        {revenue.data?.expense.map((d, index) => {
-          return (
-            <p
-              key={index}
-              className="text-xs text-muted-foreground flex justify-start items-center"
-            >
-              <Circle className="w-3 h-3 mr-2 bg-main-500 text-main-500 rounded-full" />
-              <span className="capitalize">
-                ₱ {d.amount.toLocaleString()} | {d.category}
-              </span>
-            </p>
-          );
-        })}
+        {revenue.isLoading ? (
+          <>
+            <Skeleton className="w-48 h-14 rounded-md" />
+          </>
+        ) : (
+          <>
+            <div className="text-4xl font-bold">₱ {total.toLocaleString()}</div>
+            <Label>Expenses</Label>
+            {revenue.data?.expense.map((d, index) => {
+              return (
+                <p
+                  key={index}
+                  className="text-xs text-muted-foreground flex justify-start items-center"
+                >
+                  <Circle className="w-3 h-3 mr-2 bg-main-500 text-main-500 rounded-full" />
+                  <span className="capitalize">
+                    ₱ {d.amount.toLocaleString()} | {d.category}
+                  </span>
+                </p>
+              );
+            })}
+          </>
+        )}
       </CardContent>
     </Card>
   );

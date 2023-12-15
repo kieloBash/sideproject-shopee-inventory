@@ -26,9 +26,17 @@ import { toast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const FormSchema = z.object({
-  cart: z.array(z.number()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one item.",
-  }),
+  cart: z.array(z.number()).refine(
+    (value) => {
+      return (
+        value.length > 0 &&
+        value.some((item) => item !== undefined && item !== null)
+      );
+    },
+    {
+      message: "You have to select at least one item.",
+    }
+  ),
 });
 
 // BACKEND
@@ -366,6 +374,7 @@ export function CheckOutMinerModal() {
                                   <Checkbox
                                     checked={field.value?.includes(index)}
                                     onCheckedChange={(checked) => {
+                                      console.log(checked);
                                       return checked
                                         ? field.onChange([
                                             ...field.value,
