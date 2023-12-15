@@ -2,22 +2,13 @@
 import React, { useMemo } from "react";
 
 // UI
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import useFetchRevenue from "@/hooks/useRevenue";
-import { Circle } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import useFetchWeekRevenue from "@/hooks/useWeekRevenue";
+import dayjs from "dayjs";
 
-const Revenue = ({ date }: { date: Date | undefined }) => {
-  const revenue = useFetchRevenue({ date });
-  console.log(revenue);
+const WeekCard = ({ date }: { date: Date | undefined }) => {
+  const revenue = useFetchWeekRevenue({ date });
 
   const total: number = useMemo(() => {
     const income = (revenue?.data?.income || []).reduce((acc, d) => {
@@ -30,10 +21,16 @@ const Revenue = ({ date }: { date: Date | undefined }) => {
     return income - expense;
   }, [revenue]);
 
+  let startWeek;
+  let endWeek;
+
+  startWeek = dayjs(date).startOf("week").format("MMM DD");
+  endWeek = dayjs(date).endOf("week").format("MMM DD");
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-medium">Daily Revenue</CardTitle>
+        <CardTitle className="text-base font-medium">Weekly Revenue</CardTitle>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -55,20 +52,9 @@ const Revenue = ({ date }: { date: Date | undefined }) => {
         ) : (
           <>
             <div className="text-4xl font-bold">₱ {total.toLocaleString()}</div>
-            <Label>Expenses</Label>
-            {revenue.data?.expense.map((d, index) => {
-              return (
-                <p
-                  key={index}
-                  className="text-xs text-muted-foreground flex justify-start items-center"
-                >
-                  <Circle className="w-3 h-3 mr-2 bg-main-500 text-main-500 rounded-full" />
-                  <span className="capitalize">
-                    ₱ {d.amount.toLocaleString()} | {d.category}
-                  </span>
-                </p>
-              );
-            })}
+            <p className="text-xs text-muted-foreground mt-2">
+              ({startWeek} - {endWeek})
+            </p>
           </>
         )}
       </CardContent>
@@ -76,4 +62,4 @@ const Revenue = ({ date }: { date: Date | undefined }) => {
   );
 };
 
-export default Revenue;
+export default WeekCard;

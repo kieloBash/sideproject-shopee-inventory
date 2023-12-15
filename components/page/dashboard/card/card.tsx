@@ -20,6 +20,7 @@ import useUniqueDates from "@/hooks/useUniqueDates";
 import useFetchMinersList from "@/hooks/useMinersList";
 import { usePathname, useRouter } from "next/navigation";
 import Revenue from "./revenue";
+import WeekCard from "../week";
 
 export function CardLists({ dateString }: { dateString: string | undefined }) {
   const [date, setDate] = useState<Date | undefined>(
@@ -55,7 +56,7 @@ export function CardLists({ dateString }: { dateString: string | undefined }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="w-full flex gap-2 justify-start items-center">
+      <div className="w-full flex gap-2 justify-between items-center">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -98,7 +99,8 @@ export function CardLists({ dateString }: { dateString: string | undefined }) {
           </PopoverContent>
         </Popover>
       </div>
-      <Revenue date={date}/>
+      <WeekCard date={date} />
+      <Revenue date={date} />
       <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
