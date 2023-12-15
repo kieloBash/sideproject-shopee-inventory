@@ -18,6 +18,22 @@ export interface MinerType {
   shared: boolean;
 }
 
+export interface IncomeType {
+  id: string;
+  user_id: string;
+  amount: number;
+  source: string;
+  description?: string;
+}
+
+export interface ExpenseType {
+  id: string;
+  user_id: string;
+  amount: number;
+  category: string;
+  description?: string;
+}
+
 export interface PageProps {
   params: { [key: string]: string | string[] | undefined };
   searchParams: { [key: string]: string | string[] | undefined };

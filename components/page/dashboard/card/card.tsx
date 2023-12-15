@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 // UI
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import useUniqueDates from "@/hooks/useUniqueDates";
 import useFetchMinersList from "@/hooks/useMinersList";
 import { usePathname, useRouter } from "next/navigation";
+import Revenue from "./revenue";
 
 export function CardLists({ dateString }: { dateString: string | undefined }) {
   const [date, setDate] = useState<Date | undefined>(
@@ -97,6 +98,7 @@ export function CardLists({ dateString }: { dateString: string | undefined }) {
           </PopoverContent>
         </Popover>
       </div>
+      <Revenue date={date}/>
       <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

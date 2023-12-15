@@ -36,6 +36,7 @@ import { toast } from "@/components/ui/use-toast";
 import supabase from "@/utils/supabase";
 import { useSession } from "next-auth/react";
 import { UserType } from "@/lib/interfaces/user.interface";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Schema = z.object({
   dob: z.date({
@@ -60,6 +61,8 @@ const defaultValues: Partial<FormValues> = {
 
 export function ExpenseForm() {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(Schema),
     defaultValues,
@@ -87,6 +90,9 @@ export function ExpenseForm() {
       variant: "success",
     });
     form.reset();
+    queryClient.invalidateQueries({
+      queryKey: [`revenue`],
+    });
   }
 
   if (!session?.user)

@@ -286,6 +286,9 @@ export function CheckOutMinerModal() {
     queryClient.invalidateQueries({
       queryKey: [`miners`],
     });
+    queryClient.invalidateQueries({
+      queryKey: [`revenue`],
+    });
     setSelectedInvoice(undefined);
     setToggleCheckout(false);
     setIsLoading(false);
