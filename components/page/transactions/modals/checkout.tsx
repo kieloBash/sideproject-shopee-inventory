@@ -109,7 +109,7 @@ export function CheckOutMinerModal() {
             .from("income")
             .insert({
               user_id: user.id,
-              date: new Date(),
+              date: new Date(selectedInvoice.created_at).toISOString(),
               source: "Business - Shopee",
               amount: getTotalOfCart([
                 ...existingConfirmedInvoice.data.cart,
@@ -132,7 +132,7 @@ export function CheckOutMinerModal() {
             .from("income")
             .insert({
               user_id: user.id,
-              date: new Date(),
+              date: new Date(selectedInvoice.created_at).toISOString(),
               source: "Business - Shopee",
               amount: getTotalOfCart(selectedInvoice.cart),
               description: `Shopee mined by ${selectedInvoice.miner_name}`,
@@ -176,7 +176,7 @@ export function CheckOutMinerModal() {
             .from("income")
             .insert({
               user_id: user.id,
-              date: new Date(),
+              date: new Date(selectedInvoice.created_at).toISOString(),
               source: "Business - Shopee",
               amount: getTotalOfCart([
                 ...existingConfirmedInvoice.data.cart,
@@ -206,7 +206,7 @@ export function CheckOutMinerModal() {
             .from("income")
             .insert({
               user_id: user.id,
-              date: new Date(),
+              date: new Date(selectedInvoice.created_at).toISOString(),
               source: "Business - Shopee",
               amount: getTotalOfCart(cart.commonValues),
               description: `Shopee mined by ${selectedInvoice.miner_name}`,
@@ -309,8 +309,7 @@ export function CheckOutMinerModal() {
   }
   function getTotalOfCart(cart: number[]) {
     const total = cart.reduce((acc, item) => acc + item, 0);
-    const tax = total * 0.2;
-    return total - tax;
+    return total * 0.92795;
   }
   function compareCarts(selectedValues: number[], checkedIndexes: number[]) {
     const commonValues = selectedValues.filter((value, index) =>

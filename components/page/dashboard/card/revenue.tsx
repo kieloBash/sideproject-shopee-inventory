@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Revenue = ({ date }: { date: Date | undefined }) => {
   const revenue = useFetchRevenue({ date });
 
+  console.log(revenue);
+
   const total: number = useMemo(() => {
     const income = (revenue?.data?.income || []).reduce((acc, d) => {
       return acc + (d.amount || 0);
